@@ -11,6 +11,7 @@ import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
+import { useNavigate } from 'react-router-dom';
 
 interface LayoutAppBarOptions {
   selected: String
@@ -18,28 +19,40 @@ interface LayoutAppBarOptions {
 function LayoutAppBar(options: LayoutAppBarOptions) {
 
   const pages = ['Home', 'Database', 'Docs', 'Profile'];
-  const settings = ['Profile', 'Account', 'Dashboard', 'Logout'];
+  const settings = ['Profile', 'Account', 'Dashboard', 'Sign in'];
 
   const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(null);
   const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
 
+  const nav = useNavigate()
+
   const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorElNav(event.currentTarget);
+    console.log('cliked 1');
+
   };
   const handleOpenUserMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorElUser(event.currentTarget);
   };
 
-  const handleCloseNavMenu = () => {
+  const handleCloseNavMenu = (e: React.MouseEvent) => {
     setAnchorElNav(null);
+    let path = e.currentTarget.textContent?.toLocaleLowerCase()
+    if (path == null) {
+      path = "/"
+    }
+    nav(path)
   };
 
-  const handleCloseUserMenu = () => {
+  const handleCloseUserMenu = (e: React.MouseEvent) => {
     setAnchorElUser(null);
+    if (e.currentTarget.textContent == settings[3]) {
+      nav('/sign-in')
+    }
   };
 
   return (
-    <AppBar position="static" style={{ background: '#ffffff' }}>
+    <AppBar position="relative" style={{ background: '#ffffff' }}>
       <Container maxWidth="xl">
         <Toolbar disableGutters>
 
@@ -68,7 +81,7 @@ function LayoutAppBar(options: LayoutAppBarOptions) {
               aria-controls="menu-appbar"
               aria-haspopup="true"
               onClick={handleOpenNavMenu}
-              color="inherit"
+              color="info"
             >
               <MenuIcon />
             </IconButton>
@@ -117,8 +130,8 @@ function LayoutAppBar(options: LayoutAppBarOptions) {
             TGDB
           </Typography>
           <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
-            {pages.map((page)=>{
-              if(options.selected===page){
+            {pages.map((page) => {
+              if (options.selected.toLocaleUpperCase() === page.toLocaleUpperCase()) {
                 return (
                   <Button
                     key={page}
@@ -129,11 +142,11 @@ function LayoutAppBar(options: LayoutAppBarOptions) {
                     {page}
                   </Button>
                 )
-              }else{
+              } else {
                 return (
                   <Button
                     key={page}
-                    onClick={handleCloseNavMenu}
+                    onClick={(e) => handleCloseNavMenu(e)}
                     sx={{ my: 2, display: 'block', borderRadius: '40px', marginRight: '10px' }}
                     variant="outlined"
                   >
