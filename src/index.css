@@ -15,3 +15,25 @@ body {
     scrollbar-width: none;
     /* Firefox */
 }
+
+.slide-enter {
+    opacity: 0;
+    z-index: 1;
+}
+
+.slide-enter.slide-enter-active {
+    opacity: 1;
+    transition: opacity 150ms ease-in;
+}
+
+.slide-exit {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  transform: translateX(0%);
+}
+
+.slide-exit-active {
+  transform: translateX(-100%);
+}

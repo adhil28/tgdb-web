@@ -1,0 +1,21 @@
+.code {
+    font-family: monospace;
+    background-color: #f1f1f1;
+    border-radius: 20px;
+    padding: 30px;
+    margin-top: 30px;
+    font-size: large;
+}
+
+.docs {
+    padding-left: 10%;
+    padding-right: 10%;
+}
+
+.colorpicker {
+    color: #c70000;
+}
+
+.number {
+    color: #c70000;
+}

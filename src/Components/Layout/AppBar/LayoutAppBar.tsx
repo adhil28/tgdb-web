@@ -46,13 +46,13 @@ function LayoutAppBar(options: LayoutAppBarOptions) {
 
   const handleCloseUserMenu = (e: React.MouseEvent) => {
     setAnchorElUser(null);
-    if (e.currentTarget.textContent == settings[3]) {
+    if (e.currentTarget.textContent === settings[3]) {
       nav('/sign-in')
     }
   };
 
   return (
-    <AppBar position="relative" style={{ background: '#ffffff' }}>
+    <AppBar position="sticky" style={{ background: '#ffffff' }}>
       <Container maxWidth="xl">
         <Toolbar disableGutters>
 

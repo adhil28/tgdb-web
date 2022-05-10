@@ -24,13 +24,11 @@ const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
 );
 root.render(
-  <React.StrictMode>
-    <Router>
-      <ThemeProvider theme={theme}>
-        <App />
-      </ThemeProvider>
-    </Router>
-  </React.StrictMode>
+  <Router>
+    <ThemeProvider theme={theme}>
+      <App />
+    </ThemeProvider>
+  </Router>
 );
 
 // If you want to start measuring performance in your app, pass a function
