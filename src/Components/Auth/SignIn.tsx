@@ -5,9 +5,10 @@ import { asyncButtonListner, formValidator, getInputValueWithId } from './AuthUt
 import { Telegram } from "../../helpers/Telegram"
 import GlobalObjects from "../../helpers/Global"
 import AuthDialogue from './AuthDialogue';
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { stateUpdaterInterface } from './interfaces'
 import { useNavigate } from 'react-router-dom';
+import { getItem } from '../../helpers/StorageHandler';
 
 function SignIn() {
 
@@ -18,9 +19,9 @@ function SignIn() {
     },
   }));
 
-  const [openAuthDialogue, setOpenAuthDialogue] = useState(false)
+  const [openAuthDialogue, setOpenAuthDialogue] = useState(true)
+  const [authDialogueTitle, setAuthDialogueTitle] = useState('Loading')
   let [currentStates, setcurrentStates] = useState({ phone: false, progress: true, otp: false, password: false })
-  const [onNextClicked, setonNextClicked] = useState('')
   const updateCurrentStates = ({ changedState, state }: stateUpdaterInterface) => {
     switch (changedState) {
       case 'phone':
@@ -60,6 +61,80 @@ function SignIn() {
     }
 
   }
+
+  useEffect(() => {
+    getItem('config').then(async (item) => {
+      if (item != null && typeof (item) == 'string') {
+        item = JSON.parse(item)
+        let config: { apiId: number, apiHash: string } = item as { apiId: number, apiHash: string }
+
+        let stringSession: string = (await getItem('token')) as string;
+        if (stringSession != null || typeof (stringSession) == 'string') {
+          const telegram = new Telegram({ apiHash: config.apiHash, apiId: config.apiId, stringSession: stringSession })
+          GlobalObjects.Telegram = telegram;
+          signInToTelegram(telegram)
+        } else {
+          const telegram = new Telegram({ apiHash: config.apiHash, apiId: config.apiId, stringSession: "" })
+          GlobalObjects.Telegram = telegram;
+          signInToTelegram(telegram)
+        }
+      } else {
+        setOpenAuthDialogue(false)
+      }
+
+    })
+  }, [])
+
+  function signInToTelegram(telegram: Telegram) {
+    setOpenAuthDialogue(true)
+    telegram.signIn({
+      onInputPhoneNumber: async () => {
+        setAuthDialogueTitle('Phone')
+        updateCurrentStates({ changedState: "phone", state: true })
+        await asyncButtonListner('onNextClicked');
+        updateCurrentStates({ changedState: "progress", state: true })
+
+        let phone: string = getInputValueWithId('phone')
+        if (phone == null) {
+          phone = ''
+        }
+
+        return phone;
+
+      },
+      onInputPhoneCode: async () => {
+        setAuthDialogueTitle('Code')
+        updateCurrentStates({ changedState: "otp", state: true })
+        await asyncButtonListner('onNextClicked');
+        updateCurrentStates({ changedState: "progress", state: true })
+
+        let otp: string = getInputValueWithId('otp')
+        if (otp == null) {
+          otp = '000000'
+        }
+        return otp
+      },
+      onInputPassword: async () => {
+        setAuthDialogueTitle('Password')
+        updateCurrentStates({ changedState: "password", state: true })
+        await asyncButtonListner('onNextClicked');
+        updateCurrentStates({ changedState: "progress", state: true })
+
+        let password: string = getInputValueWithId('password')
+        if (password == null) {
+          password = '22222'
+        }
+
+        return password
+      },
+    }).then((res: any) => {
+      setOpenAuthDialogue(false)
+
+      nav('/profile')
+    })
+  }
+
+
   const nav = useNavigate()
 
   return (
@@ -80,44 +155,7 @@ function SignIn() {
           let data: { "app-id": string, "api-hash": string, "channel-id": string } = formValidator(e.currentTarget) as { "app-id": string, "api-hash": string, "channel-id": string }
           const telegram = new Telegram({ apiHash: data['api-hash'], apiId: parseInt(data['app-id']), stringSession: localStorage.getItem('token') })
           GlobalObjects.Telegram = telegram;
-          setOpenAuthDialogue(true)
-          telegram.signIn({
-            onInputPhoneNumber: async () => {
-              updateCurrentStates({ changedState: "phone", state: true })
-              await asyncButtonListner('onNextClicked');
-
-              let phone: string = getInputValueWithId('phone')
-              if (phone == null) {
-                phone = ''
-              }
-              return phone;
-              /*  */
-
-            },
-            onInputPhoneCode: async () => {
-              updateCurrentStates({ changedState: "otp", state: true })
-              await asyncButtonListner('onNextClicked');
-
-              let otp: string = getInputValueWithId('otp')
-              if (otp == null) {
-                otp = '000000'
-              }
-              return otp
-            },
-            onInputPassword: async () => {
-              updateCurrentStates({ changedState: "password", state: true })
-              await asyncButtonListner('onNextClicked');
-              let password: string = getInputValueWithId('password')
-              if (password == null) {
-                password = '22222'
-              }
-              return password
-            },
-          }).then((val) => {
-            setOpenAuthDialogue(false)
-
-            nav('/profile')
-          })
+          signInToTelegram(telegram)
 
         }}>
           <Typography style={{ fontSize: '35px', fontWeight: 'bold' }}>Sign in to TGDB</Typography>
@@ -132,6 +170,7 @@ function SignIn() {
         open={openAuthDialogue}
         setOpen={setOpenAuthDialogue}
         currentStates={currentStates}
+        title={authDialogueTitle}
       />
     </Grid>
   )

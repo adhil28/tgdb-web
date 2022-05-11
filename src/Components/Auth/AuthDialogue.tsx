@@ -5,9 +5,9 @@ import { getInputValueWithId } from './AuthUtils'
 import { AuthEvents, stateUpdaterInterface } from './interfaces'
 
 interface Options {
-    open: boolean, setOpen: (open: boolean) => any, currentStates: { phone: boolean, progress: boolean, otp: boolean, password: boolean }
+    open: boolean, setOpen: (open: boolean) => any, currentStates: { phone: boolean, progress: boolean, otp: boolean, password: boolean }, title: string
 }
-function AuthDialogue({ open, setOpen, currentStates }: Options) {
+function AuthDialogue({ open, setOpen, currentStates, title }: Options) {
 
     const AuthInputs = {
         phone: () => {
@@ -59,14 +59,14 @@ function AuthDialogue({ open, setOpen, currentStates }: Options) {
         <Dialog key={"Ad"} open={open} >
             <DialogContent style={{ paddingLeft: '20px', paddingRight: '20px' }}>
                 <Box textAlign='center'>
-                    <DialogTitle style={{ marginBottom: '0' }}>Phone number</DialogTitle>
+                    <DialogTitle style={{ marginBottom: '0' }}>{title}</DialogTitle>
                     {
                         currentStates.phone ? <AuthInputs.phone />
                             : currentStates.otp ? <AuthInputs.otp />
                                 : currentStates.password ? <AuthInputs.password />
                                     : <AuthInputs.progress />
                     }
-                    < Button id='onNextClicked'  fullWidth variant='contained' style={{ padding: '10px', marginTop: '5px' }}>Next</Button>
+                    < Button id='onNextClicked' fullWidth variant='contained' style={{ padding: '10px', marginTop: '5px',display:currentStates.progress?'none':'inherit' }}>Next</Button>
                 </Box>
             </DialogContent>
         </Dialog >

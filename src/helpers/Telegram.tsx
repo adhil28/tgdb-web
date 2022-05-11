@@ -1,14 +1,15 @@
 import { TelegramClient, Api } from "telegram";
 import { getStringSession } from "../Components/Auth/AuthUtils";
 import { signInEvents, TelegramInterface } from "./interfaces";
+import { save } from "./StorageHandler";
 
 const { StringSession } = require("telegram/sessions");
 
 export class Telegram {
-    apiId: number;
-    apiHash: string;
-    stringSession: string;
-    client: TelegramClient;
+    private apiId: number;
+    private apiHash: string;
+    private stringSession: string;
+    private client: TelegramClient;
     constructor(config: TelegramInterface) {
         this.apiId = config.apiId
         this.apiHash = config.apiHash
@@ -32,16 +33,18 @@ export class Telegram {
                     return events.onInputPassword()
                 },
                 onError(err) {
-                    console.error(new Error(err.message));
+                    console.log(err.cause, err.message, err.name, err.stack);
                 },
             })
-            localStorage.setItem('token', getStringSession(this.client.session.save()))
+            save('token', getStringSession(this.client.session.save()))
             resolve('done')
         })
     }
-    async getAccountDetails() {
-        const result = 'name'
-        return result
+    getAccountDetails() {
+        return this.client.getMe()
+    }
+    getApiIdAndHash() {
+        return { apiId: this.apiId, apiHash: this.apiHash }
     }
 }
 

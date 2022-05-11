@@ -17,6 +17,7 @@ export const getInputValueWithId = (id) => {
 export const asyncButtonListner = (id) => {
     return new Promise((resolve) => {
         document.getElementById(id)?.addEventListener('click', () => {
+            console.log('cliked');
             resolve()
         })
     })
